@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#ffffff">
+  <title>Shankroll</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ═══ LOGIN ═══════════════════════════════ -->
+<div id="screen-login" class="screen active">
+  <div class="login-wrap">
+    <div class="logo-block">
+      <div class="logo-mark">S</div>
+      <h1 class="logo-text">Shankroll</h1>
+      <p class="logo-sub">speel · win · domineer</p>
+    </div>
+    <div class="card auth-card">
+      <div class="tab-row">
+        <button class="tab active" onclick="authTab('login',this)">Inloggen</button>
+        <button class="tab"        onclick="authTab('register',this)">Registreren</button>
+      </div>
+      <div id="tab-login">
+        <div class="field-group"><label>Gebruikersnaam</label><input type="text"     id="l-user" placeholder="naam" autocomplete="username"></div>
+        <div class="field-group"><label>Wachtwoord</label>    <input type="password" id="l-pass" placeholder="••••••••" autocomplete="current-password"></div>
+        <p class="form-msg" id="l-msg"></p>
+        <button class="btn-primary full" onclick="doLogin()">Inloggen →</button>
+      </div>
+      <div id="tab-register" style="display:none">
+        <div class="field-group"><label>Gebruikersnaam</label>       <input type="text"     id="r-user"  placeholder="kies naam" autocomplete="username"></div>
+        <div class="field-group"><label>Wachtwoord</label>           <input type="password" id="r-pass"  placeholder="••••••••" autocomplete="new-password"></div>
+        <div class="field-group"><label>Herhaal wachtwoord</label>   <input type="password" id="r-pass2" placeholder="••••••••" autocomplete="new-password"></div>
+        <p class="form-msg" id="r-msg"></p>
+        <button class="btn-primary full" onclick="doRegister()">Registreren →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ HOME ════════════════════════════════ -->
+<div id="screen-home" class="screen">
+  <div class="topbar">
+    <div class="topbar-logo">Shankroll</div>
+    <div class="topbar-right">
+      <span id="home-username" class="topbar-name"></span>
+      <button class="btn-icon" onclick="goTo('screen-profile')">👤</button>
+      <button class="btn-icon" onclick="doLogout()">↩</button>
+    </div>
+  </div>
+  <div class="home-content">
+    <div class="section-label">Games</div>
+    <div class="game-grid">
+      <div class="game-card" onclick="openLobby()">
+        <div class="gc-icon">🎲</div>
+        <div class="gc-body">
+          <div class="gc-name">Trap Board</div>
+          <div class="gc-desc">Monopoly van de straat. Koop panden, dash van de politie, overleef de NPC.</div>
+          <div class="gc-meta"><span class="badge green">Speelbaar</span> 1–4 spelers</div>
+        </div>
+        <div class="gc-arrow">→</div>
+      </div>
+      <div class="game-card locked">
+        <div class="gc-icon">🃏</div>
+        <div class="gc-body"><div class="gc-name">Straatpoker</div><div class="gc-desc">Texas Hold'em met een eigen twist.</div><div class="gc-meta"><span class="badge gray">Binnenkort</span></div></div>
+        <div class="gc-arrow">🔒</div>
+      </div>
+      <div class="game-card locked">
+        <div class="gc-icon">🎯</div>
+        <div class="gc-body"><div class="gc-name">Trap Quiz</div><div class="gc-desc">Wie kent de straat het best?</div><div class="gc-meta"><span class="badge gray">Binnenkort</span></div></div>
+        <div class="gc-arrow">🔒</div>
+      </div>
+    </div>
+
+    <div class="section-label" style="margin-top:28px">Vrienden</div>
+    <div id="invites-box" class="card invites-card" style="display:none"></div>
+    <div class="card friends-card">
+      <p class="muted" id="friends-empty">Nog geen vrienden. Zoek iemand hieronder.</p>
+      <div id="friends-list"></div>
+      <div class="friend-search-row">
+        <input type="text" id="friend-search" placeholder="Gebruikersnaam zoeken..." oninput="searchFriend()">
+      </div>
+      <div id="friend-results"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ LOBBY ═══════════════════════════════ -->
+<div id="screen-lobby" class="screen">
+  <div class="topbar">
+    <button class="btn-back" onclick="goTo('screen-home')">← Terug</button>
+    <div class="topbar-logo">Trap Board</div>
+    <div></div>
+  </div>
+  <div class="lobby-content">
+
+    <div class="card lobby-card">
+      <div class="section-label">Spelers in lobby</div>
+      <div id="lobby-players"></div>
+
+      <div class="divider"></div>
+
+      <div class="section-label">Jouw token kiezen</div>
+      <div class="token-grid">
+        <div class="token-btn" data-token="🔫" onclick="pickToken(this)"><span>🔫</span><small>Glock</small></div>
+        <div class="token-btn" data-token="🔪" onclick="pickToken(this)"><span>🔪</span><small>Mes</small></div>
+        <div class="token-btn" data-token="🧢" onclick="pickToken(this)"><span>🧢</span><small>Cap</small></div>
+        <div class="token-btn" data-token="🚗" onclick="pickToken(this)"><span>🚗</span><small>Ride</small></div>
+        <div class="token-btn" data-token="💊" onclick="pickToken(this)"><span>💊</span><small>Pil</small></div>
+        <div class="token-btn" data-token="💰" onclick="pickToken(this)"><span>💰</span><small>Bag</small></div>
+        <div class="token-btn" data-token="🐍" onclick="pickToken(this)"><span>🐍</span><small>Snake</small></div>
+        <div class="token-btn" data-token="💀" onclick="pickToken(this)"><span>💀</span><small>Skull</small></div>
+      </div>
+      <button class="btn-secondary full" onclick="addSelf()" style="margin-top:10px">✚ Mezelf toevoegen</button>
+      <p class="form-msg" id="lobby-msg"></p>
+    </div>
+
+    <div class="card lobby-card">
+      <div class="section-label">Vrienden uitnodigen</div>
+      <div id="lobby-friend-list"><p class="muted-sm">Laden...</p></div>
+    </div>
+
+    <button class="btn-primary full" id="start-game-btn" onclick="startGame()" disabled>🎲 Spel starten</button>
+
+    <div class="card rules-card">
+      <div class="section-label">Spelregels</div>
+      <div class="rules-list">
+        <div class="rule-row"><span>🎲</span><span>Gooi 2 dobbelstenen — de maker begint</span></div>
+        <div class="rule-row"><span>🏠</span><span>Land op een vrij vak → zie de kaart → koop of sla over</span></div>
+        <div class="rule-row"><span>💸</span><span>Land op bezet vak → betaal huur of <strong>dash</strong> (30% kans)</span></div>
+        <div class="rule-row"><span>🏃</span><span>Gepakt bij dashen = 2× huur betalen</span></div>
+        <div class="rule-row"><span>🚀</span><span>Passeer GO = +€2.000</span></div>
+        <div class="rule-row"><span>🚔</span><span>Na 5× GO verschijnt de Politie NPC — rad van fortuin!</span></div>
+        <div class="rule-row"><span>🎉</span><span>Vrij-uit-kaart beschermt je bij politie of bajes</span></div>
+        <div class="rule-row"><span>💀</span><span>Bankrupt = uit het spel. Laatste over wint.</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ GAME ════════════════════════════════ -->
+<div id="screen-game" class="screen">
+  <div class="game-topbar">
+    <div class="game-title">Trap Board</div>
+    <div id="npc-status" class="npc-status-bar" style="display:none"></div>
+    <button class="btn-quit" onclick="quitGame()">✕</button>
+  </div>
+
+  <div class="game-layout">
+    <!-- BORD -->
+    <div class="board-wrap">
+      <div class="board" id="game-board"></div>
+    </div>
+
+    <!-- ZIJPANEEL -->
+    <div class="side-panel">
+
+      <!-- Huidige speler -->
+      <div class="card cur-card">
+        <div class="cur-token" id="cur-token">🔫</div>
+        <div class="cur-info">
+          <div class="cur-name"  id="cur-name">Speler</div>
+          <div class="cur-money" id="cur-money">€15.000</div>
+          <div class="cur-pos"   id="cur-pos">GO</div>
+          <div class="jail-tag"  id="jail-tag">🚔 IN DE BAK</div>
+          <div class="cur-cards" id="cur-cards" style="display:none"></div>
+        </div>
+      </div>
+
+      <!-- Dobbelstenen -->
+      <div class="card dice-card">
+        <div class="dice-row">
+          <div class="die" id="die-1">?</div>
+          <div class="die" id="die-2">?</div>
+          <div class="dice-total" id="dice-total"></div>
+        </div>
+        <button class="btn-primary full" id="roll-btn" onclick="rollDice()">🎲 Gooien</button>
+      </div>
+
+      <!-- Einde beurt -->
+      <div class="card action-mini-card">
+        <button class="btn-action btn-end" id="btn-end" onclick="endTurn()" disabled>➜ Beurt eindigen</button>
+      </div>
+
+      <!-- Spelers -->
+      <div class="card players-overview" id="players-overview"></div>
+
+      <!-- Log -->
+      <div class="card log-card">
+        <div class="section-label">Log</div>
+        <div class="log-scroll" id="game-log"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PROFIEL ══════════════════════════════ -->
+<div id="screen-profile" class="screen">
+  <div class="topbar">
+    <button class="btn-back" onclick="goTo('screen-home')">← Terug</button>
+    <div class="topbar-logo">Profiel</div>
+    <div></div>
+  </div>
+  <div class="profile-content">
+    <div class="card profile-card">
+      <div class="profile-avatar" id="profile-avatar">S</div>
+      <div class="profile-name"   id="profile-name">Naam</div>
+      <div class="profile-stats">
+        <div class="stat-box"><div class="stat-val" id="stat-played">0</div><div class="stat-lbl">Gespeeld</div></div>
+        <div class="stat-box"><div class="stat-val" id="stat-won">0</div>   <div class="stat-lbl">Gewonnen</div></div>
+        <div class="stat-box"><div class="stat-val" id="stat-winrate">0%</div><div class="stat-lbl">Winrate</div></div>
+      </div>
+    </div>
+    <button class="btn-danger full" onclick="deleteAccount()">Account verwijderen</button>
+  </div>
+</div>
+
+<!-- ═══ WIN ══════════════════════════════════ -->
+<div id="screen-win" class="screen">
+  <div class="win-wrap">
+    <div class="win-trophy">🏆</div>
+    <h1 class="win-title">Winnaar!</h1>
+    <div class="win-token" id="win-token">🔫</div>
+    <div class="win-name"  id="win-name">Speler</div>
+    <div class="win-stats" id="win-stats"></div>
+    <button class="btn-primary" onclick="goTo('screen-home')">Terug naar home</button>
+  </div>
+</div>
+
+<!-- ═══ PROPERTY CARD OVERLAY ═══════════════ -->
+<div id="prop-card-overlay" class="prop-card-overlay">
+  <div class="prop-card" id="prop-card">
+    <button class="pc-close" onclick="document.getElementById('prop-card-overlay').classList.remove('open')">✕</button>
+    <div class="pc-stripe"></div>
+    <div class="pc-emoji" id="pc-emoji">🏠</div>
+    <div class="pc-name"  id="pc-name">Naam</div>
+    <div class="pc-detail-row" id="pc-price-row">
+      <span class="pc-detail-label">Koopprijs</span>
+      <span class="pc-detail-val"  id="pc-price">€0</span>
+    </div>
+    <div class="pc-detail-row" id="pc-rent-row">
+      <span class="pc-detail-label">Huur</span>
+      <span class="pc-detail-val" id="pc-rent-val">€0</span>
+    </div>
+    <div class="pc-detail-row" id="pc-owner-row" style="display:none">
+      <span class="pc-detail-label">Eigenaar</span>
+      <span class="pc-detail-val" id="pc-owner-name">—</span>
+    </div>
+    <div class="pc-btns" id="pc-btns"></div>
+  </div>
+</div>
+
+<!-- ═══ POLITIE WIEL OVERLAY ════════════════ -->
+<div id="wheel-overlay" class="wheel-overlay" style="display:none">
+  <div class="wheel-box">
+    <div class="wheel-header">
+      <div class="wheel-icon">🚔</div>
+      <div class="wheel-title">Politiecontrole!</div>
+    </div>
+    <div class="wheel-segments" id="wheel-spinning">
+      <div class="wheel-seg" data-idx="0">⚠️ Waarschuwing</div>
+      <div class="wheel-seg" data-idx="1">💸 €2.000 Boete</div>
+      <div class="wheel-seg" data-idx="2">💸 €5.000 Boete</div>
+      <div class="wheel-seg" data-idx="3">🔒 Gevangenis</div>
+      <div class="wheel-seg" data-idx="4">🕺 Vriendelijk</div>
+    </div>
+    <div class="wheel-result" id="wheel-result" style="display:none">
+      <div class="wheel-result-label" id="wheel-result-label"></div>
+      <div class="wheel-result-desc"  id="wheel-result-desc"></div>
+    </div>
+    <button class="btn-primary full" id="wheel-ok-btn" style="margin-top:16px">OK →</button>
+  </div>
+</div>
+
+<!-- ═══ MODAL ════════════════════════════════ -->
+<div id="modal-overlay" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-icon"  id="m-icon">❓</div>
+    <div class="modal-title" id="m-title">Titel</div>
+    <div class="modal-body"  id="m-body">Tekst</div>
+    <div class="modal-btns"  id="m-btns"></div>
+  </div>
+</div>
+
+<!-- ═══ TOAST ════════════════════════════════ -->
+<div id="toast" class="toast"></div>
+
+<script src="js/data.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/lobby.js"></script>
+<script src="js/board.js"></script>
+<script src="js/game.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
