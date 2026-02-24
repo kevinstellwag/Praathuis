@@ -6,7 +6,7 @@
 
 const CONFIG = {
   // Lokaal testen: 'ws://localhost:3000'
-  // Na Railway deployment: 'wss://jouw-naam.up.railway.app'
+  // Na Railway deployment: 'backend-production-825d.up.railway.app'
   WS_URL: window.location.hostname === 'localhost'
     ? 'ws://localhost:3000'
     : `wss://${window.location.hostname.replace('github.io','up.railway.app')}`,
