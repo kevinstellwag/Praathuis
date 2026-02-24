@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+  <meta name="theme-color" content="#0f0f0f">
+  <title>Shankroll</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ══ SCREEN: AUTH ══════════════════════════ -->
+<div id="s-auth" class="screen active">
+  <div class="auth-page">
+    <div class="auth-brand">
+      <div class="brand-logo">S</div>
+      <h1>Shankroll</h1>
+      <p>Speel. Win. Domineer.</p>
+    </div>
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchAuthTab('login',this)">Inloggen</button>
+        <button class="auth-tab"        onclick="switchAuthTab('register',this)">Registreren</button>
+      </div>
+      <div id="auth-login">
+        <input type="text"     id="li-name" placeholder="Gebruikersnaam" class="input">
+        <input type="password" id="li-pass" placeholder="Wachtwoord"     class="input">
+        <p class="auth-msg" id="li-msg"></p>
+        <button class="btn btn-primary" onclick="doLogin()">Inloggen</button>
+      </div>
+      <div id="auth-register" style="display:none">
+        <input type="text"     id="re-name"  placeholder="Gebruikersnaam (2–16 tekens)" class="input">
+        <input type="password" id="re-pass"  placeholder="Wachtwoord (min. 4)"          class="input">
+        <input type="password" id="re-pass2" placeholder="Herhaal wachtwoord"           class="input">
+        <p class="auth-msg" id="re-msg"></p>
+        <button class="btn btn-primary" onclick="doRegister()">Account aanmaken</button>
+      </div>
+      <p class="auth-server-note">Verbinden met server...</p>
+      <p class="auth-server-status" id="conn-status">⏳ Verbinden...</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCREEN: HOME ══════════════════════════ -->
+<div id="s-home" class="screen">
+  <!-- Top nav -->
+  <nav class="nav">
+    <div class="nav-brand">Shankroll</div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="homeTab('games',this)">Games</button>
+      <button class="nav-tab"        onclick="homeTab('friends',this)">Vrienden</button>
+    </div>
+    <div class="nav-right">
+      <div class="nav-user" id="nav-user">
+        <div class="avatar sm" id="nav-avatar">S</div>
+        <span id="nav-name">Naam</span>
+      </div>
+      <button class="nav-btn" onclick="doLogout()">Uitloggen</button>
+    </div>
+  </nav>
+
+  <!-- Games tab -->
+  <div id="tab-games" class="home-tab active">
+    <div class="home-section">
+      <h2 class="section-title">Games</h2>
+      <div class="games-list">
+        <div class="game-item" onclick="openLobbyScreen()">
+          <div class="game-item-left">
+            <div class="game-icon">🎲</div>
+            <div>
+              <div class="game-name">Trap Board</div>
+              <div class="game-meta">2–4 spelers · Monopoly van de straat</div>
+            </div>
+          </div>
+          <div class="game-item-right">
+            <span class="status-dot green"></span>
+            <span class="game-status">Speelbaar</span>
+            <span class="chevron">›</span>
+          </div>
+        </div>
+        <div class="game-item locked">
+          <div class="game-item-left">
+            <div class="game-icon dim">🃏</div>
+            <div>
+              <div class="game-name dim">Straatpoker</div>
+              <div class="game-meta">Binnenkort</div>
+            </div>
+          </div>
+          <span class="lock-tag">Binnenkort</span>
+        </div>
+        <div class="game-item locked">
+          <div class="game-item-left">
+            <div class="game-icon dim">🎯</div>
+            <div>
+              <div class="game-name dim">Trap Quiz</div>
+              <div class="game-meta">Binnenkort</div>
+            </div>
+          </div>
+          <span class="lock-tag">Binnenkort</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Friends tab -->
+  <div id="tab-friends" class="home-tab" style="display:none">
+    <div class="home-section">
+      <!-- Verzoeken -->
+      <div id="friend-requests-box" style="display:none">
+        <h2 class="section-title">Vriendverzoeken</h2>
+        <div id="friend-requests-list" class="friend-list"></div>
+      </div>
+      <h2 class="section-title">Vrienden</h2>
+      <div class="friend-search-bar">
+        <input type="text" id="friend-search" placeholder="Zoek op gebruikersnaam..." class="input" oninput="searchFriends()">
+      </div>
+      <div id="friend-search-results" class="friend-list"></div>
+      <div id="friends-list" class="friend-list"></div>
+      <p id="friends-empty" class="empty-msg">Nog geen vrienden. Zoek hierboven!</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCREEN: LOBBY ═════════════════════════ -->
+<div id="s-lobby" class="screen">
+  <nav class="nav">
+    <button class="nav-back" onclick="leaveLobby()">← Terug</button>
+    <div class="nav-brand">Trap Board</div>
+    <div></div>
+  </nav>
+
+  <div class="lobby-layout">
+    <!-- Links: Kamer maken / joinen -->
+    <div class="lobby-join-panel">
+      <div class="panel-card">
+        <h3 class="panel-title">Kamer aanmaken</h3>
+        <p class="panel-sub">Kies je token en maak een kamer aan. Deel de code met vrienden.</p>
+        <div class="token-picker" id="token-picker">
+          <div class="token-item" data-token="🔫" onclick="pickToken(this)"><span>🔫</span><small>Glock</small></div>
+          <div class="token-item" data-token="🔪" onclick="pickToken(this)"><span>🔪</span><small>Mes</small></div>
+          <div class="token-item" data-token="🧢" onclick="pickToken(this)"><span>🧢</span><small>Cap</small></div>
+          <div class="token-item" data-token="🚗" onclick="pickToken(this)"><span>🚗</span><small>Ride</small></div>
+          <div class="token-item" data-token="💊" onclick="pickToken(this)"><span>💊</span><small>Pil</small></div>
+          <div class="token-item" data-token="💰" onclick="pickToken(this)"><span>💰</span><small>Bag</small></div>
+          <div class="token-item" data-token="🐍" onclick="pickToken(this)"><span>🐍</span><small>Snake</small></div>
+          <div class="token-item" data-token="💀" onclick="pickToken(this)"><span>💀</span><small>Skull</small></div>
+        </div>
+        <button class="btn btn-primary full" id="create-room-btn" onclick="createRoom()" disabled>Kamer aanmaken</button>
+      </div>
+
+      <div class="panel-card">
+        <h3 class="panel-title">Joinen met code</h3>
+        <div class="join-row">
+          <input type="text" id="join-code" placeholder="XXXXX" class="input code-input" maxlength="5" oninput="this.value=this.value.toUpperCase()">
+          <div class="token-picker small" id="join-token-picker">
+            <div class="token-item" data-token="🔫" onclick="pickJoinToken(this)"><span>🔫</span></div>
+            <div class="token-item" data-token="🔪" onclick="pickJoinToken(this)"><span>🔪</span></div>
+            <div class="token-item" data-token="🧢" onclick="pickJoinToken(this)"><span>🧢</span></div>
+            <div class="token-item" data-token="🚗" onclick="pickJoinToken(this)"><span>🚗</span></div>
+            <div class="token-item" data-token="💊" onclick="pickJoinToken(this)"><span>💊</span></div>
+            <div class="token-item" data-token="💰" onclick="pickJoinToken(this)"><span>💰</span></div>
+            <div class="token-item" data-token="🐍" onclick="pickJoinToken(this)"><span>🐍</span></div>
+            <div class="token-item" data-token="💀" onclick="pickJoinToken(this)"><span>💀</span></div>
+          </div>
+          <button class="btn btn-secondary" id="join-room-btn" onclick="joinRoom()" disabled>Joinen</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rechts: wachtkamer -->
+    <div class="lobby-room-panel" id="lobby-room-panel" style="display:none">
+      <div class="panel-card room-card">
+        <div class="room-header">
+          <div>
+            <h3 class="panel-title">Kamer</h3>
+            <div class="room-code-display">Code: <strong id="room-code-display">—</strong></div>
+          </div>
+          <button class="btn btn-sm" onclick="copyRoomCode()">📋 Kopieer</button>
+        </div>
+
+        <div class="room-players" id="room-players"></div>
+
+        <!-- Vrienden uitnodigen -->
+        <div class="room-invite-section">
+          <div class="section-label">Vrienden uitnodigen</div>
+          <div id="room-invite-list" class="room-invite-list"></div>
+        </div>
+
+        <div class="room-actions">
+          <button class="btn btn-outline" onclick="toggleReady()">Klaar / Niet klaar</button>
+          <button class="btn btn-primary" id="start-btn" onclick="startGame()" style="display:none">▶ Start Spel</button>
+        </div>
+      </div>
+
+      <!-- Lobby chat -->
+      <div class="panel-card chat-card">
+        <div class="section-label">Lobby Chat</div>
+        <div class="chat-messages" id="lobby-chat"></div>
+        <div class="chat-input-row">
+          <input type="text" id="lobby-chat-input" placeholder="Stuur een bericht..." class="input" onkeydown="if(event.key==='Enter')sendChat()">
+          <button class="btn btn-sm btn-primary" onclick="sendChat()">↑</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCREEN: GAME ═══════════════════════════ -->
+<div id="s-game" class="screen">
+  <div class="game-screen">
+
+    <!-- Bord -->
+    <div class="game-board-area">
+      <div class="board-header">
+        <div class="board-title">Trap Board</div>
+        <div class="npc-indicator" id="npc-indicator" style="display:none">🚔 Politie actief</div>
+        <button class="btn btn-sm btn-danger-outline" onclick="confirmQuit()">Stoppen</button>
+      </div>
+      <div class="board-wrap">
+        <div class="board" id="game-board"></div>
+      </div>
+    </div>
+
+    <!-- Rechterpaneel: spelers + dice + chat -->
+    <div class="game-side">
+
+      <!-- Spelers -->
+      <div class="side-block players-block" id="game-players-list"></div>
+
+      <!-- Jouw beurt -->
+      <div class="side-block your-turn-block" id="your-turn-block" style="display:none">
+        <div class="your-turn-label">Jouw beurt</div>
+        <div class="dice-area">
+          <div class="die-wrap">
+            <div class="die" id="d1">?</div>
+            <div class="die" id="d2">?</div>
+          </div>
+          <div class="dice-sum" id="dice-sum"></div>
+        </div>
+        <button class="btn btn-roll" id="roll-btn" onclick="sendRoll()">🎲 Gooien</button>
+      </div>
+
+      <!-- Andermans beurt -->
+      <div class="side-block waiting-block" id="waiting-block" style="display:none">
+        <div class="waiting-label" id="waiting-name">Wachten op...</div>
+        <div class="dice-area">
+          <div class="die-wrap">
+            <div class="die" id="d1-watch">—</div>
+            <div class="die" id="d2-watch">—</div>
+          </div>
+          <div class="dice-sum" id="dice-sum-watch"></div>
+        </div>
+      </div>
+
+      <!-- Chat -->
+      <div class="side-block chat-block">
+        <div class="section-label">Chat</div>
+        <div class="chat-messages game-chat" id="game-chat"></div>
+        <div class="chat-input-row">
+          <input type="text" id="game-chat-input" placeholder="Bericht..." class="input sm" onkeydown="if(event.key==='Enter')sendGameChat()">
+          <button class="btn btn-sm btn-primary" onclick="sendGameChat()">↑</button>
+        </div>
+      </div>
+
+      <!-- Log -->
+      <div class="side-block log-block">
+        <div class="section-label">Log</div>
+        <div class="log-list" id="game-log"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ KAART POPUP ════════════════════════════ -->
+<div class="card-overlay" id="card-overlay">
+  <div class="space-card" id="space-card">
+    <div class="sc-color-bar" id="sc-color"></div>
+    <div class="sc-emoji"     id="sc-emoji">🏠</div>
+    <div class="sc-name"      id="sc-name">Naam</div>
+    <div class="sc-type-badge" id="sc-badge">Eigendom</div>
+    <div class="sc-details"   id="sc-details"></div>
+    <div class="sc-actions"   id="sc-actions"></div>
+  </div>
+</div>
+
+<!-- ══ POLITIE WIEL ════════════════════════════ -->
+<div class="overlay" id="wheel-overlay">
+  <div class="wheel-modal">
+    <div class="wheel-title">🚔 Politiecontrole!</div>
+    <div class="wheel-subtitle" id="wheel-victim-name">Speler wordt gecontroleerd</div>
+    <div class="wheel-slots" id="wheel-slots"></div>
+    <div class="wheel-result-box" id="wheel-result-box" style="display:none">
+      <div class="wheel-result-emoji" id="wheel-res-emoji">⚠️</div>
+      <div class="wheel-result-label" id="wheel-res-label">Waarschuwing</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ WIN OVERLAY ════════════════════════════ -->
+<div class="overlay" id="win-overlay" style="display:none">
+  <div class="win-modal">
+    <div class="win-trophy-anim">🏆</div>
+    <h1 class="win-heading">WINNAAR!</h1>
+    <div class="win-token-big" id="win-token">🔫</div>
+    <div class="win-name"      id="win-player-name">Naam</div>
+    <div class="win-money"     id="win-money">€15.000</div>
+    <button class="btn btn-primary" onclick="goHome()">Terug naar home</button>
+  </div>
+</div>
+
+<!-- ══ TOAST ══════════════════════════════════ -->
+<div class="toast" id="toast"></div>
+
+<!-- ══ INVITE NOTIF ════════════════════════════ -->
+<div class="invite-notif" id="invite-notif" style="display:none">
+  <div class="invite-notif-inner">
+    <span class="invite-notif-text" id="invite-notif-text">Je bent uitgenodigd!</span>
+    <button class="btn btn-sm btn-primary" id="invite-accept-btn">Joinen</button>
+    <button class="btn btn-sm"             onclick="dismissInvite()">✕</button>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/ws.js"></script>
+<script src="js/data.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/lobby.js"></script>
+<script src="js/board.js"></script>
+<script src="js/game.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
