@@ -1,6 +1,6 @@
 # 🎲 Shankroll — Upload naar GitHub Pages
 
-## Wat heb je nodig?
+ ## Wat heb je nodig?
 - Een gratis GitHub account → [github.com](https://github.com)
 - Optioneel: een eigen domeinnaam (bijv. shankroll.nl)
 
