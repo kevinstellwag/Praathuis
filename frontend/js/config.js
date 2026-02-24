@@ -13,4 +13,4 @@ const CONFIG = {
 };
 
 // Overschrijf handmatig als nodig:
-// CONFIG.WS_URL = 'wss://shankroll-production.up.railway.app';
+// CONFIG.WS_URL = 'wss://backend-production-825d.up.railway.app';
